@@ -7,6 +7,15 @@ function el(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(co
 function h(tag,attrs={},html=''){const e=document.createElement(tag);for(const k in attrs){if(k==='class')e.className=attrs[k];else e.setAttribute(k,attrs[k])}if(html)e.innerHTML=html;return e}
 
 /* ---------- concepts ---------- */
+const SATHINT={
+ 'אי':'האם יש מים מסביב לאדמה מכל הצדדים?',
+ 'חצי אי':'עקוב אחרי קו החוף. בכמה צדדים יש מים, ואיפה האדמה מתחברת?',
+ 'מצר':'תסתכל על המים ליד הנקודה. הם רחבים או צרים? מה יש משני הצדדים שלהם?',
+ 'מפרץ':'האם המים נכנסים לתוך האדמה? אפשר להתרחק עם שתי אצבעות.',
+ 'ים':'כמה גדולים המים? האם יש אדמה כמעט מסביב?',
+ 'אוקיינוס':'רואים סוף למים? כמה רחוקה האדמה?',
+ 'יבשת':'כמה גדולה האדמה? אפשר לראות איפה היא נגמרת?'
+};
 const DEF={
  'אי':'חלק של יבשה שיש סביבו מים מכל הצדדים.',
  'חצי אי':'חלק של יבשה שיש סביבו מים משלושה צדדים, ובצד הרביעי הוא מחובר ליבשה.',
@@ -60,6 +69,22 @@ const PLACES={
        {n:'אוסטרליה',near:'בחצי הדרומי של כדור הארץ',lat:-25,lon:134,r:30,d:null},
        {n:'אמריקה הדרומית',near:'מדרום לאמריקה הצפונית',lat:-18,lon:-60,r:38,d:null}]
 };
+function satZoom(p){return Math.max(2,Math.min(12,Math.round(Math.log2(274/p.r))))}
+let satReturn=null;
+let satMap=null,satPin=null,satLabels=null;
+function setSatLabels(on){if(!satMap)return;if(on)satLabels.addTo(satMap);else satLabels.remove();$('satLbl').setAttribute('aria-pressed',on);$('satLbl').textContent=on?'🏷️ הסתר שמות':'🏷️ הצג שמות'}
+$('satLbl').onclick=()=>setSatLabels($('satLbl').getAttribute('aria-pressed')!=='true');
+$('satHintBtn').onclick=()=>{$('satHint').hidden=!$('satHint').hidden};
+function openSat(p,btn,c){satReturn=btn;$('sat').hidden=false;
+ if(!satMap){satMap=L.map('satMap',{zoomControl:true,attributionControl:true,minZoom:2,maxZoom:17,worldCopyJump:true,tap:false});
+  satMap.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:17,maxNativeZoom:17,
+   attribution:'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'}).addTo(satMap);
+  satLabels=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:17,maxNativeZoom:17,attribution:'Labels &copy; Esri'});
+  satPin=L.circleMarker([0,0],{radius:9,color:'#fff',weight:3,fillColor:'#e63946',fillOpacity:1}).addTo(satMap)}
+ satMap.invalidateSize();satMap.setView([p.lat,p.lon],satZoom(p),{animate:false});satPin.setLatLng([p.lat,p.lon]);setSatLabels(false);$('satHint').hidden=true;$('satHint').textContent='💡 הנקודה האדומה היא המקום. '+(SATHINT[c]||'');$('satEarth').href=earthURL(p);$('satNear').textContent=p.near;$('sat').hidden=false;document.body.classList.add('noscroll');$('satClose').focus()}
+function closeSat(){$('sat').hidden=true;document.body.classList.remove('noscroll');if(satReturn)satReturn.focus()}
+$('satClose').onclick=closeSat;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sat').hidden)closeSat()});
 function earthURL(p){const dist=Math.round(Math.min(16000000,Math.max(250000,p.r*360000)));return `https://earth.google.com/web/@${p.lat},${p.lon},0a,${dist}d,35y,0h,0t,0r`}
 
 /* ---------- continents ---------- */
@@ -67,6 +92,10 @@ const CN={asia:'אסיה',europe:'אירופה',africa:'אפריקה',namerica:'
 const CC={asia:'#E07A5F',europe:'#9C89B8',africa:'#F0A04B',namerica:'#4F9A7E',samerica:'#97C05C',oceania:'#D17FA6',antarctica:'#F4F7FA'};
 function fixWinding(g){if(!g||g.type!=='MultiPolygon')return g;g.coordinates=g.coordinates.map(p=>d3.geoArea({type:'Polygon',coordinates:p})>2*Math.PI?p.map(r=>[...r].reverse()):p);return g}
 GEO.cont.forEach(f=>fixWinding(f.geometry));for(const k in GEO.pieces)fixWinding(GEO.pieces[k]);for(const k in GEO.detail)fixWinding(GEO.detail[k]);
+// French Guiana is part of France in the source data: colour it with South America, not Europe.
+(()=>{const sa=GEO.cont.find(f=>f.properties.c==='samerica');for(const f of GEO.cont){if(f.properties.c!=='europe')continue;const g=f.geometry;if(g.type!=='MultiPolygon')continue;
+ const away=g.coordinates.filter(p=>Math.max(...p[0].map(q=>q[0]))<-30);if(!away.length)continue;
+ g.coordinates=g.coordinates.filter(p=>!away.includes(p));GEO.cont.push({type:'Feature',properties:{c:'samerica'},geometry:{type:'MultiPolygon',coordinates:away}})}})();
 const CONT=GEO.cont;
 const PIECES={chukotka:{type:'Feature',properties:{c:'piece'},geometry:GEO.pieces.chukotka},wafrica:{type:'Feature',properties:{c:'piece'},geometry:GEO.pieces.wafrica}};
 const grat=d3.geoGraticule10();
@@ -108,13 +137,25 @@ function makeGlobe(box,{size=260,rotate=[-20,-20],piece=null,labels=[],onTap=nul
  function hit(ll){if(piece&&d3.geoContains(piece,ll))return 'piece';for(const f of CONT)if(d3.geoContains(f,ll))return f.properties.c;return 'water'}
  api.hit=hit;api.render();return api;
 }
+// Flat map (centre 0°): drop wrap-around slivers so each continent sits on one side only.
+// Asia/Europe bits west of -160° (Chukotka, Wrangel) and North-America bits east of +165° (western Aleutians) are hidden;
+// rings crossing the 180° line (Fiji) are clamped to the eastern side. The globe keeps the full data.
+function flatCont(center){if(center!==0)return CONT;
+ return CONT.map(f=>{const g=f.geometry,c=f.properties.c;const polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  const keep=[];for(const p of polys){const xs=p[0].map(q=>q[0]);const mn=Math.min(...xs),mx=Math.max(...xs);
+   if((c==='asia'||c==='europe'||c==='oceania')&&mx<-160)continue;
+   if(c==='namerica'&&mn>165)continue;
+   if(c!=='antarctica'&&mx-mn>300){keep.push(p.map(r=>r.map(([x,y])=>[x<0?180:x,y])));continue}
+   keep.push(p)}
+  return {type:'Feature',properties:f.properties,geometry:{type:'MultiPolygon',coordinates:keep}}})}
 function makeFlat(box,{width=360,center=0,piece=null,labels=[],onTap=null}={}){
  const H=width/2;const svg=el('svg',{viewBox:`0 0 ${width} ${H}`,width,height:H,role:'img','aria-label':'מפה שטוחה של העולם'},box);
  const proj=d3.geoEquirectangular().scale(width/(2*Math.PI)).translate([width/2,H/2]).rotate([-center,0]).precision(.5);
  const path=d3.geoPath(proj);
  el('path',{d:path({type:'Sphere'}),fill:'#9fd3f0',stroke:'#5b8db0','stroke-width':1.5},svg);
  el('path',{d:path(grat)||'',fill:'none',stroke:'#fff','stroke-opacity':.55,'stroke-width':.6},svg);
- for(const f of CONT)el('path',{d:path(f)||'',fill:CC[f.properties.c],stroke:CC[f.properties.c],'stroke-width':.8},svg);
+ const FC=flatCont(center);
+ for(const f of FC)el('path',{d:path(f)||'',fill:CC[f.properties.c],stroke:CC[f.properties.c],'stroke-width':.8},svg);
  if(piece){el('path',{d:path(piece)||'',fill:'#FFE000',stroke:'#FFE000','stroke-width':5,'stroke-linejoin':'round'},svg);el('path',{d:path(piece)||'',fill:'#FFE000',stroke:'#7a5a00','stroke-width':1},svg)}
  if(piece){const c=d3.geoCentroid(piece);let [x,y]=proj(c);x=Math.max(14,Math.min(width-14,x));el('circle',{cx:x,cy:y,r:13,fill:'none',stroke:'#e63946','stroke-width':2.5,'stroke-dasharray':'5 3'},svg)}
  const lab=el('g',{},svg);
@@ -123,7 +164,7 @@ function makeFlat(box,{width=360,center=0,piece=null,labels=[],onTap=null}={}){
    if(l.t){const t=el('text',{x:Math.max(30,Math.min(width-30,x)),y:y+(l.dot?-9:0),'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#0b2a47',stroke:'#fff','stroke-width':3,'paint-order':'stroke'},lab);t.textContent=l.t}}}};
  api.setLabels(labels);
  if(onTap)svg.addEventListener('click',e=>{const b=svg.getBoundingClientRect();const ll=proj.invert([(e.clientX-b.left)*width/b.width,(e.clientY-b.top)*H/b.height]);
-   let r='water';if(piece&&d3.geoContains(piece,ll))r='piece';else for(const f of CONT)if(d3.geoContains(f,ll)){r=f.properties.c;break}onTap(r)});
+   let r='water';if(piece&&d3.geoContains(piece,ll))r='piece';else for(const f of FC)if(d3.geoContains(f,ll)){r=f.properties.c;break}onTap(r)});
  return api;
 }
 function legend(box){const d=h('div',{class:'legend'});for(const k in CN)d.insertAdjacentHTML('beforeend',`<span><i style="background:${CC[k]}"></i>${CN[k]}</span>`);box.append(d)}
@@ -178,9 +219,9 @@ function jStep(){
  setProgress(i,deck.length);const {c,p}=deck[i];
  $('task').textContent=`טסים למקום מסתורי: ${p.near}. מה רואים במקום המסומן?`;
  const box=h('div',{class:'mapbox'});$('stage').append(box);drawPlace(box,p);
- const a=h('a',{class:'ge',href:earthURL(p),target:'_blank',rel:'noopener'});a.textContent='🛫 טוס לשם ב-Google Earth';box.append(a);
+ const a=h('button',{class:'ge',type:'button'});a.textContent='🛰️ טוס לשם – תצלום לוויין';a.onclick=()=>openSat(p,a,c);box.append(a);
  const q=h('div');q.innerHTML='<div style="font-weight:700;margin-top:6px">מה ראית?</div>';$('stage').append(q);
- hintFn=k=>showHint(k===1?SEEHINT[c]:'אפשר ללחוץ על „טוס לשם” ולהתקרב עם האצבע. '+SEEHINT[c]);
+ hintFn=k=>showHint(k===1?SEEHINT[c]:'לחץ על „טוס לשם” ותתקרב או תתרחק עם שתי אצבעות. '+SEEHINT[c]);
  q.append(options(shuffle(SEE[c]),SEE[c][0],ok=>{
    if(!ok){say('↺ כמעט. תסתכל שוב על המפה ונסה עוד פעם.',false);return}
    say('✓ נכון, זה מה שרואים שם!',true);jName(c,p)}));
@@ -346,4 +387,4 @@ $('fbform').onsubmit=e=>{
  setTimeout(()=>{$('fbsheet').hidden=true;msg.textContent=''},1500);
 };
 // testing hook (no data stored)
-window.__geo={start,get M(){return M},DCASES,PLACES,earthURL};
+window.__geo={start,get M(){return M},DCASES,PLACES,earthURL,satZoom,get satMap(){return satMap},flatCont};
