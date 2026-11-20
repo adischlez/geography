@@ -8,13 +8,13 @@ function h(tag,attrs={},html=''){const e=document.createElement(tag);for(const k
 
 /* ---------- concepts ---------- */
 const SATHINT={
- 'אי':'האם יש מים מסביב לאדמה מכל הצדדים?',
- 'חצי אי':'עקוב אחרי קו החוף. בכמה צדדים יש מים, ואיפה האדמה מתחברת?',
+ 'אי':'האם יש מים מסביב ליבשה מכל הצדדים?',
+ 'חצי אי':'עקוב אחרי קו החוף. בכמה צדדים יש מים, ואיפה היבשה מתחברת?',
  'מצר':'תסתכל על המים ליד הנקודה. הם רחבים או צרים? מה יש משני הצדדים שלהם?',
- 'מפרץ':'האם המים נכנסים לתוך האדמה? אפשר להתרחק עם שתי אצבעות.',
- 'ים':'כמה גדולים המים? האם יש אדמה כמעט מסביב?',
- 'אוקיינוס':'רואים סוף למים? כמה רחוקה האדמה?',
- 'יבשת':'כמה גדולה האדמה? אפשר לראות איפה היא נגמרת?'
+ 'מפרץ':'האם המים נכנסים לתוך היבשה? אפשר להתרחק עם שתי אצבעות.',
+ 'ים':'כמה גדולים המים? האם יש יבשה כמעט מסביב?',
+ 'אוקיינוס':'רואים סוף למים? כמה רחוקה היבשה?',
+ 'יבשת':'כמה גדולה היבשה? אפשר לראות איפה היא נגמרת?'
 };
 const DEF={
  'אי':'חלק של יבשה שיש סביבו מים מכל הצדדים.',
@@ -22,7 +22,7 @@ const DEF={
  'מצר':'מעבר מים צר בין שני חלקי יבשה. הוא מחבר בין שני גופי מים.',
  'מפרץ':'חלק של ים או אוקיינוס שנכנס לתוך היבשה.',
  'ים':'גוף מים גדול ומלוח, קטן מאוקיינוס. לרוב יש יבשה כמעט מסביב לו.',
- 'אוקיינוס':'גוף המים הגדול ביותר. בספר לומדים על שלושה: האטלנטי, השקט וההודי.',
+ 'אוקיינוס':'גוף המים הגדול ביותר. בספר לומדים על שלושת הגדולים: האטלנטי, השקט וההודי.',
  'יבשת':'שטח יבשה גדול מאוד. יש שבע יבשות.'
 };
 const CONCEPTS=Object.keys(DEF);
@@ -50,12 +50,12 @@ const PLACES={
        {n:'סיציליה',near:'ליד איטליה',lat:37.6,lon:14.1,r:2.6,d:'sicily'},
        {n:'איסלנד',near:'בצפון האוקיינוס האטלנטי',lat:64.9,lon:-18.7,r:4.5,d:'iceland'},
        {n:'מדגסקר',near:'ליד אפריקה',lat:-19.5,lon:46.7,r:9,d:null}],
- 'חצי אי':[{n:'חצי האי סיני',near:'בין ישראל למצרים',lat:29.6,lon:33.8,r:3.6,d:'sinai'},
+ 'חצי אי':[{n:'חצי האי סיני',near:'דרומית־מערבית לישראל, ליד אילת',lat:29.6,lon:33.8,r:3.6,d:'sinai'},
        {n:'חצי האי האפניני (איטליה)',near:'בדרום אירופה',lat:42,lon:12.8,r:6,d:'italy'},
        {n:'חצי האי הקוריאני',near:'במזרח אסיה',lat:37.5,lon:127.5,r:5,d:'korea'}],
  'מצר':[{n:'מצר גיברלטר',near:'בין ספרד למרוקו',lat:35.95,lon:-5.6,r:1.3,d:'gibraltar'},
        {n:'מצר באב אל-מנדב',near:'בין אפריקה לתימן',lat:12.6,lon:43.35,r:1.8,d:'mandeb'},
-       {n:'מצר ברינג',near:'בין רוסיה (אסיה) לאלסקה (אמריקה הצפונית)',lat:65.8,lon:-168.8,r:4.5,d:'bering'}],
+       {n:'מצר ברינג',near:'בין רוסיה (אסיה) לאלסקה (אמריקה הצפונית)',lat:65.8,lon:-168.8,r:4.5,d:null}],
  'מפרץ':[{n:'מפרץ אילת',near:'בדרום ישראל',lat:28.9,lon:34.7,r:2.6,d:'eilat'},
        {n:'המפרץ הפרסי',near:'בין איראן לסעודיה',lat:26.8,lon:51.5,r:7,d:'persian'},
        {n:'מפרץ מקסיקו',near:'בין ארצות הברית למקסיקו',lat:24.5,lon:-90,r:12,d:'mexico'}],
@@ -84,11 +84,13 @@ function openSat(p,btn,c){satReturn=btn;$('sat').hidden=false;
   satPin=L.circleMarker([0,0],{radius:9,color:'#fff',weight:3,fillColor:'#e63946',fillOpacity:1}).addTo(satMap)}
  satMap.invalidateSize();satMap.setView([p.lat,p.lon],satZoom(p),{animate:false});satPin.setLatLng([p.lat,p.lon]);setSatLabels(false);$('satHint').hidden=true;$('satHint').textContent='💡 הנקודה האדומה היא המקום. '+(SATHINT[c]||'');$('satEarth').href=earthURL(p);$('satNear').textContent=p.near;$('sat').hidden=false;document.body.classList.add('noscroll');$('satClose').focus()}
 function closeSat(){$('sat').hidden=true;document.body.classList.remove('noscroll');if(satReturn)satReturn.focus()}
-$('satClose').onclick=closeSat;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sat').hidden)closeSat()});
+$('satClose').onclick=closeSat;document.addEventListener('keydown',e=>{if($('sat').hidden)return;if(e.key==='Escape')return closeSat();
+ if(e.key==='Tab'){const f=[...$('sat').querySelectorAll('button,a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>!x.hidden&&x.offsetParent);if(!f.length)return;
+  const a=f[0],b=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus()}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus()}else if(!$('sat').contains(document.activeElement)){e.preventDefault();a.focus()}}});
 function earthURL(p){const dist=Math.round(Math.min(16000000,Math.max(250000,p.r*360000)));return `https://earth.google.com/web/@${p.lat},${p.lon},0a,${dist}d,35y,0h,0t,0r`}
 
 /* ---------- continents ---------- */
-const CN={asia:'אסיה',europe:'אירופה',africa:'אפריקה',namerica:'אמריקה הצפונית',samerica:'אמריקה הדרומית',oceania:'אוסטרליה',antarctica:'אנטארקטיקה'};
+const CN={asia:'אסיה',europe:'אירופה',africa:'אפריקה',namerica:'אמריקה הצפונית',samerica:'אמריקה הדרומית',oceania:'אוסטרליה ואוקיאניה',antarctica:'אנטארקטיקה'};
 const CC={asia:'#E07A5F',europe:'#9C89B8',africa:'#F0A04B',namerica:'#4F9A7E',samerica:'#97C05C',oceania:'#D17FA6',antarctica:'#F4F7FA'};
 function fixWinding(g){if(!g||g.type!=='MultiPolygon')return g;g.coordinates=g.coordinates.map(p=>d3.geoArea({type:'Polygon',coordinates:p})>2*Math.PI?p.map(r=>[...r].reverse()):p);return g}
 GEO.cont.forEach(f=>fixWinding(f.geometry));for(const k in GEO.pieces)fixWinding(GEO.pieces[k]);for(const k in GEO.detail)fixWinding(GEO.detail[k]);
@@ -176,11 +178,11 @@ const ORDER=['journey','compare','detective','find'];
 let mode=null,M=null,hintStage=0,hintFn=null;
 function show(s){['hub','game','end'].forEach(x=>$(x).hidden=x!==s);window.scrollTo(0,0)}
 function setProgress(i,n){const s=$('segs');s.innerHTML='';for(let k=0;k<n;k++){const d=h('div',{class:'seg'+(k<i?' done':k===i?' cur':'')});s.append(d)}$('ptext').textContent=`${Math.min(i+1,n)} מתוך ${n}`}
-function resetStep(){$('fb').textContent='';$('fb').className='';$('hint').hidden=true;$('learn').hidden=true;$('acts').hidden=true;$('helpTurn').hidden=true;hintStage=0;wrongs=0;$('stage').innerHTML='';[...$('acts').children].forEach(x=>{if(x.id!=='next')x.remove()})}
+function resetStep(){$('hintBtn').after($('helpTurn'));$('fb').textContent='';$('fb').className='';$('hint').hidden=true;$('learn').hidden=true;$('acts').hidden=true;$('helpTurn').hidden=true;hintStage=0;wrongs=0;$('stage').innerHTML='';[...$('acts').children].forEach(x=>{if(x.id!=='next')x.remove()})}
 let wrongs=0;
 function say(msg,ok){$('fb').textContent=msg;$('fb').className=ok?'success':'tryagain';if(ok){wrongs=0}else if(++wrongs>=2&&hintStage===0&&hintFn){hintFn(++hintStage)}}
 function showHint(t){$('hint').textContent='💡 '+t;$('hint').hidden=false}
-function nextBtn(label,fn){$('next').textContent=label;$('next').onclick=fn;$('acts').hidden=false}
+function nextBtn(label,fn){$('next').textContent=label;$('next').onclick=fn;$('acts').hidden=false;setTimeout(()=>$('acts').scrollIntoView({block:'nearest',behavior:'smooth'}),50)}
 $('hintBtn').onclick=()=>{if(hintFn)hintFn(++hintStage)};
 function start(m){mode=m;document.body.dataset.mode=m;$('modeTitle').textContent=TITLES[m];show('game');({journey:jStart,compare:cStart,detective:dStart,find:fStart})[m]()}
 document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>start(b.dataset.mode));
@@ -197,37 +199,44 @@ function options(list,correct,onPick,cls=''){ // list of strings
 
 /* ---------- 1. journey ---------- */
 function jStart(){M={deck:shuffle(CONCEPTS).map(c=>({c,p:PLACES[c][rnd(PLACES[c].length)]})),i:0};jStep()}
-let placeSeq=0;
-function boxRing([w,s,e,n]){w+=.05;e-=.05;s=Math.max(-89,s+.05);n=Math.min(89,n-.05);const R=[];
- for(let x=w;x<e;x+=.5)R.push([x,s]);for(let y=s;y<n;y+=.5)R.push([e,y]);for(let x=e;x>w;x-=.5)R.push([x,n]);for(let y=n;y>s;y-=.5)R.push([w,y]);R.push([w,s]);
- return d3.geoArea({type:'Polygon',coordinates:[R]})>2*Math.PI?[[...R].reverse()]:[R]}
 function drawPlace(box,p){
- const W=Math.min(stageWidth(),420),H=Math.round(W*0.62),id='pm'+(++placeSeq);
+ const W=Math.min(stageWidth(),420),H=Math.round(W*0.62);
  const svg=el('svg',{class:'globe',viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'כדור הארץ עם המקום המסומן. אפשר לסובב עם האצבע, העכבר או החצים.'},box);svg.style.margin='auto';svg.style.borderRadius='10px';
  const fit=Math.min(W,H)/2-6,far=p.r>=30;const R0=far?fit:(Math.min(W,H)/2)/Math.sin(p.r*Math.PI/180);
  const RMIN=fit,RMAX=Math.max(R0*3,fit*3);
  const proj=d3.geoOrthographic().rotate([-p.lon,-p.lat]).scale(R0).translate([W/2,H/2]).clipAngle(90).clipExtent([[0,0],[W,H]]).precision(.3);
  const path=d3.geoPath(proj);
  const detail=p.d?{type:'Feature',geometry:GEO.detail[p.d]}:null;
- const defs=el('defs',{},svg);let maskPath=null,hole=null;
- if(detail){hole={type:'MultiPolygon',coordinates:GEO.dbox[p.d].map(boxRing)};const m=el('mask',{id,maskUnits:'userSpaceOnUse',x:0,y:0,width:W,height:H},defs);el('rect',{width:W,height:H,fill:'#fff'},m);maskPath=el('path',{fill:'#000'},m)}
+ // detail land is drawn only while the whole frame lies inside its box, so a box edge (seam) can never show
+ function useDetail(){const [lon,lat]=proj.invert([W/2,H/2]),k=Math.cos(lat*Math.PI/180);
+  const frame=Math.asin(Math.min(1,Math.hypot(W,H)/2/proj.scale()))*180/Math.PI;
+  return GEO.dbox[p.d].some(([w,s,e,n])=>Math.min(lat-s,n-lat,(lon-w)*k,(e-lon)*k)>frame*1.15)}
  el('rect',{width:W,height:H,fill:'#eaf2f9',rx:10},svg);
  const sph=el('path',{fill:'#5aa9dc',stroke:'#3f7fae','stroke-width':1},svg);
  const gr=el('path',{fill:'none',stroke:'#fff','stroke-opacity':.25,'stroke-width':.6},svg);
- const cg=el('g',detail?{mask:`url(#${id})`}:{},svg);const cp=CONT.map(f=>({f,e:el('path',{fill:'#b8cf8a',stroke:'#b8cf8a','stroke-width':.8},cg)}));
+ const cg=el('g',{},svg);const cp=CONT.map(f=>({f,e:el('path',{fill:'#b8cf8a',stroke:'#b8cf8a','stroke-width':.8},cg)}));
  const dp=detail?el('path',{fill:'#b8cf8a',stroke:'#b8cf8a','stroke-width':1.6,'stroke-linejoin':'round'},svg):null;
  const ring=el('circle',{r:far?28:22,fill:'none',stroke:'#ffdf2b','stroke-width':3,'stroke-dasharray':'6 4'},svg);
  const dot=el('circle',{r:4.5,fill:'#e63946',stroke:'#fff','stroke-width':1.5},svg);
+ // mini-globe inset (whole Earth, turns along, dot on the place) – shown while zoomed in
+ const MS=Math.round(Math.min(84,H*0.36)),mg=el('g',{transform:'translate(6,6)','pointer-events':'none'},svg);
+ const mproj=d3.geoOrthographic().scale(MS/2-2).translate([MS/2,MS/2]).clipAngle(90).precision(1),mpath=d3.geoPath(mproj);
+ el('circle',{cx:MS/2,cy:MS/2,r:MS/2,fill:'#fff',opacity:.9},mg);const msph=el('path',{fill:'#5aa9dc',stroke:'#203b5c','stroke-width':1},mg);
+ const mland=el('path',{fill:'#b8cf8a'},mg);const mdot=el('circle',{r:3.5,fill:'#e63946',stroke:'#fff','stroke-width':1.2},mg);
+ const LANDALL={type:'FeatureCollection',features:CONT};
  function render(){sph.setAttribute('d',path({type:'Sphere'})||'');gr.setAttribute('d',path(grat)||'');
   for(const c of cp)c.e.setAttribute('d',path(c.f)||'');
-  if(detail){const use=proj.scale()>fit*2.5;dp.setAttribute('d',use?path(detail)||'':'');maskPath.setAttribute('d',use?path(hole)||'':'')}
+  if(detail){const use=useDetail();dp.setAttribute('d',use?path(detail)||'':'');cg.style.display=use?'none':''}
   const c=proj.invert([W/2,H/2]);const vis=d3.geoDistance([p.lon,p.lat],c)<Math.PI/2-0.02;const [x,y]=proj([p.lon,p.lat]);
   for(const e of [ring,dot]){e.setAttribute('cx',x);e.setAttribute('cy',y);e.style.display=vis?'':'none'}
-  svg.dataset.scale=Math.round(proj.scale());home.hidden=Math.abs(proj.scale()-R0)<1&&d3.geoDistance([p.lon,p.lat],c)<0.01}
+  const zoomed=proj.scale()>fit*1.4;mg.style.display=zoomed?'':'none';
+  if(zoomed){mproj.rotate(proj.rotate());msph.setAttribute('d',mpath({type:'Sphere'}));mland.setAttribute('d',mpath(LANDALL)||'');const mv=d3.geoDistance([p.lon,p.lat],mproj.invert([MS/2,MS/2]))<Math.PI/2-0.02;const [mx,my]=mproj([p.lon,p.lat]);mdot.setAttribute('cx',mx);mdot.setAttribute('cy',my);mdot.style.display=mv?'':'none'}
+  whole.hidden=!zoomed||flying;
+  svg.dataset.scale=Math.round(proj.scale());home.hidden=flying||Math.abs(proj.scale()-R0)<1&&d3.geoDistance([p.lon,p.lat],c)<0.01}
  // drag + pinch (touch-action:none only on this svg, page scrolls elsewhere)
  const pts=new Map();let st=null;
  const begin=()=>{const a=[...pts.values()];st={r:proj.rotate(),s:proj.scale(),a:a.map(q=>({...q})),d:a.length>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0}};
- svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});begin();e.preventDefault()});
+ svg.addEventListener('pointerdown',e=>{flyTok++;flying=false;svg.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});begin();e.preventDefault()});
  svg.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||!st)return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const a=[...pts.values()];
   if(a.length>1&&st.d>0){const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);proj.scale(Math.max(RMIN,Math.min(RMAX,st.s*d/st.d)));render();return}
   const k=svg.getBoundingClientRect().width/W,sen=75/(proj.scale()*k)*1.6;const dx=a[0].x-st.a[0].x,dy=a[0].y-st.a[0].y;
@@ -237,16 +246,23 @@ function drawPlace(box,p){
  svg.tabIndex=0;svg.addEventListener('keydown',e=>{const r=proj.rotate(),m={ArrowLeft:[10,0],ArrowRight:[-10,0],ArrowUp:[0,-10],ArrowDown:[0,10]}[e.key];
   if(m){e.preventDefault();proj.rotate([r[0]+m[0],Math.max(-88,Math.min(88,r[1]+m[1])),0]);render()}
   else if(e.key==='+'||e.key==='='){e.preventDefault();zoom(1.5)}else if(e.key==='-'){e.preventDefault();zoom(1/1.5)}});
- function zoom(f){proj.scale(Math.max(RMIN,Math.min(RMAX,proj.scale()*f)));render()}
+ function zoom(f){flyTok++;flying=false;proj.scale(Math.max(RMIN,Math.min(RMAX,proj.scale()*f)));render()}
+ let flyTok=0,flying=false;
+ function flyScale(to,ms,delay=0){flying=true;const tok=++flyTok,from=proj.scale(),t0=performance.now()+delay,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){flying=false;proj.scale(to);render();return}
+  const stp=now=>{if(tok!==flyTok)return;let k=Math.max(0,Math.min(1,(now-t0)/ms));if(k>=1)flying=false;k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;proj.scale(from*Math.pow(to/from,k));render();if(k<1)requestAnimationFrame(stp)};requestAnimationFrame(stp)}
  const bar=h('div',{class:'globebar'});
  const zi=h('button',{type:'button',class:'secondary mini','aria-label':'להתקרב'});zi.textContent='+';zi.onclick=()=>zoom(1.5);
  const zo=h('button',{type:'button',class:'secondary mini','aria-label':'להתרחק'});zo.textContent='−';zo.onclick=()=>zoom(1/1.5);
  const home=h('button',{type:'button',class:'secondary mini'});home.textContent='↺ חזור למקום';
- home.onclick=()=>{const r0=proj.rotate(),s0=proj.scale(),r1=[-p.lon,-p.lat,0];let d0=((r1[0]-r0[0]+540)%360)-180;const t0=performance.now(),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ home.onclick=()=>{flyTok++;flying=false;const r0=proj.rotate(),s0=proj.scale(),r1=[-p.lon,-p.lat,0];let d0=((r1[0]-r0[0]+540)%360)-180;const t0=performance.now(),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const stp=now=>{let k=reduce?1:Math.min(1,(now-t0)/700);k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;proj.rotate([r0[0]+d0*k,r0[1]+(r1[1]-r0[1])*k,0]);proj.scale(s0+(R0-s0)*k);render();if(k<1)requestAnimationFrame(stp)};requestAnimationFrame(stp)};
- bar.append(zi,zo,home);box.append(bar);
+ const whole=h('button',{type:'button',class:'secondary mini'});whole.textContent='🌍 כל הכדור';
+ whole.onclick=()=>{const r=proj.rotate();flyScale(fit,700)};
+ bar.append(zi,zo,whole,home);box.append(bar);
  const cap=h('div',{class:'maplabel'});cap.style.display='block';cap.innerHTML='🟡 המקום המסומן · ירוק = יבשה · כחול = מים<br>👆 אפשר לסובב את הכדור באצבע';box.append(cap);
- render();return {proj,render,svg};
+ if(!far){proj.scale(fit);render();flyScale(R0,1500,500)}else render();
+ return {proj,render,svg};
 }
 function jStep(){
  resetStep();const {deck,i}=M;if(i>=deck.length)return finish('סיימת את המסע! 🌍','<p>ביקרת בשבעה מקומות אמיתיים בעולם.<br>עכשיו נסה לכתוב בספר, במילים שלך, מה זה כל מושג.</p>');
@@ -283,16 +299,16 @@ const CTASKS=[
   o:['בגלובוס קרובות, במפה רחוקות','בגלובוס רחוקות, במפה קרובות','קרובות בשניהם'],ok:'נכון! בגלובוס הן כמעט נוגעות. במפה השטוחה כל אחת נמצאת בקצה אחר.',
   h1:'סובב את הגלובוס כך שהחלק העליון של האוקיינוס השקט יהיה באמצע.',turn:[-170,55],labels:[{lon:-169,lat:66,dot:1,t:'כאן'}],flat:[{lon:-169,lat:66,dot:1},{lon:179,lat:66,dot:1}]},
  {id:'antarctica',t:'סובב את הגלובוס למטה ומצא את אנטארקטיקה. איך היא נראית במפה השטוחה?',
-  o:['פס ארוך לאורך כל התחתית','עיגול קטן, כמו בגלובוס','היא לא מופיעה במפה'],ok:'נכון! במפה השטוחה אנטארקטיקה נמתחת. ליד הקטבים הצורות במפה לא מדויקות.',
+  o:['פס ארוך לאורך כל התחתית','עיגול קטן, כמו בגלובוס','היא לא מופיעה במפה'],ok:'נכון! בגלובוס אנטארקטיקה עגולה, ובמפה השטוחה היא נמתחת לפס ארוך.',
   h1:'אנטארקטיקה היא היבשת הלבנה ליד הקוטב הדרומי.',turn:[0,-75]},
- {id:'greenland',t:'גרינלנד היא האי הגדול למעלה, ליד אמריקה הצפונית. בגלובוס היא קטנה בהרבה מאפריקה. ובמפה השטוחה?',
-  o:['במפה היא נראית גדולה יותר ממה שהיא באמת','במפה היא נראית קטנה יותר ממה שהיא באמת','במפה היא נראית בדיוק כמו בגלובוס'],ok:'נכון! במפה השטוחה מקומות ליד הקטבים נראים גדולים מדי. הגלובוס מראה גדלים נכונים יותר.',
-  h1:'בגלובוס גרינלנד קטנה בהרבה מאפריקה. מה רואים במפה?',turn:[-40,55],labels:[{lon:-41,lat:73,t:'גרינלנד'}],flat:[{lon:-41,lat:74,t:'גרינלנד'}]},
+ {id:'greenland',t:'גרינלנד היא האי הגדול למעלה. בגלובוס היא קטנה בהרבה מאוסטרליה (יותר מפי 3). ובמפה השטוחה?',
+  o:['במפה היא נראית כמעט בגודל של אוסטרליה','במפה היא קטנה בהרבה מאוסטרליה, כמו בגלובוס','במפה לא רואים אותה'],ok:'נכון! בגלובוס גרינלנד קטנה בהרבה מאוסטרליה, ובמפה השטוחה היא נראית כמעט באותו גודל.',
+  h1:'מצא במפה השטוחה את גרינלנד (למעלה) ואת אוסטרליה (למטה, מימין). מי נראית גדולה יותר?',turn:[-40,55],labels:[{lon:-41,lat:73,t:'גרינלנד'},{lon:134,lat:-25,t:'אוסטרליה'}],flat:[{lon:-41,lat:74,t:'גרינלנד'},{lon:134,lat:-25,t:'אוסטרליה'}]},
  {id:'whole',t:'נסה לראות את כל העולם בבת אחת. איפה זה אפשרי?',
   o:['במפה השטוחה רואים הכול, בגלובוס רק חצי','בגלובוס רואים הכול, במפה רק חצי','בשניהם רואים רק חצי'],ok:'נכון! בגלובוס צריך לסובב כדי לראות את הצד השני.',
   h1:'בגלובוס, האם אתה רואה את הצד האחורי בלי לסובב?'},
  {id:'carry',t:'דמיין שאתה יוצא לטיול. מה קל יותר לקפל ולשים בתיק?',
-  o:['מפה שטוחה','גלובוס'],ok:'נכון! מפה אפשר לקפל. גלובוס עגול כמו כדור הארץ, ולכן הוא מראה צורות וגדלים נכונים יותר.',h1:'מה מהשניים אפשר לקפל?'}
+  o:['מפה שטוחה','גלובוס'],ok:'נכון! את המפה אפשר לקפל ולשים בתיק, ואת הגלובוס לא.',h1:'מה מהשניים אפשר לקפל?'}
 ];
 function cStart(){M={deck:shuffle(CTASKS),i:0};cStep()}
 function cStep(){
@@ -302,13 +318,13 @@ function cStep(){
  const W=stageWidth();const duo=h('div',{class:'duo'});$('stage').append(duo);
  const gb=h('div',{class:'mapbox'});duo.append(gb);const info=h('div',{class:'maplabel'});
  const tap=r=>{info.innerHTML=`<span class="tapinfo">${r==='water'?'כאן יש מים 💧':'זו '+CN[r]}</span><span>גרור כדי לסובב</span>`};
- const G=makeGlobe(gb,{size:Math.min(innerWidth>=900?320:innerWidth>=700?260:195,W),rotate:[-30,-25],onTap:tap});gb.append(info);info.innerHTML='<span>🌐 גלובוס · גרור כדי לסובב</span><span>לחץ על יבשה לשם</span>';
+ const G=makeGlobe(gb,{size:Math.min(innerWidth>=900?320:innerWidth>=700?260:195,W),rotate:[-30,-25],onTap:tap});gb.append(info);gb.append($('helpTurn'));info.innerHTML='<span>🌐 גלובוס · גרור כדי לסובב</span><span>לחץ על יבשה לשם</span>';
  const fbx=h('div',{class:'mapbox'});duo.append(fbx);const F=makeFlat(fbx,{width:Math.min(W,620),onTap:tap});
  legend(fbx,'🗺️ מפה שטוחה:');
  hintFn=k=>{if(k===1)showHint(T.h1);else{showHint(T.h1+(T.turn?' אפשר ללחוץ על „סובב בשבילי”.':''));if(T.labels){G.labels=T.labels;G.render()}if(T.flat)F.setLabels(T.flat)}
-   if(T.turn){$('helpTurn').hidden=false;$('helpTurn').onclick=()=>{G.turnTo(...T.turn);if(T.labels){G.labels=T.labels}}}};
+   if(T.turn&&k>=2){$('helpTurn').hidden=false;$('helpTurn').onclick=()=>{G.turnTo(...T.turn);if(T.labels){G.labels=T.labels}}}};
  const q=h('div');$('stage').append(q);
- q.append(options(shuffle(T.o),T.o[0],ok=>{if(!ok){say('↺ כמעט. סובב שוב את הגלובוס והשווה למפה.',false);if(hintStage===0){hintFn(++hintStage)}return}
+ q.append(options(shuffle(T.o),T.o[0],ok=>{if(!ok){say('↺ כמעט. סובב שוב את הגלובוס והשווה למפה.',false);return}
    say('✓ '+T.ok,true);nextBtn(i+1<deck.length?'לגילוי הבא ←':'סיום',()=>{M.i++;cStep()})}));
 }
 
@@ -337,7 +353,7 @@ function dStep(){
  const G=makeGlobe(gb,{size:Math.min(innerWidth>=900?320:innerWidth>=700?260:220,W),rotate:K.center===180?[-150,-20]:[-20,-30],piece,
    onTap:r=>{info.innerHTML='<span class="tapinfo">'+(r==='piece'?'זו החתיכה הצהובה 🔎':r==='water'?'כאן יש מים 💧':'זו '+CN[r])+'</span>'},
    onMove:g=>{if(M.found)return;if(d3.geoDistance(K.c,g.center())<0.62){M.found=true;found()}}});
- gb.append(info);legend(gb);$('stage').append(q);
+ gb.append(info);gb.append($('helpTurn'));legend(gb);$('stage').append(q);
  hintFn=k=>{if(M.found){showHint(k===1?'תסתכל בגלובוס: בצבע של איזו יבשה החתיכה הצהובה נוגעת?':'אפשר ללחוץ על היבשה שנוגעת בחתיכה, והגלובוס יגיד את השם.');return}
    showHint(K.h[Math.min(k,2)-1]);if(k>=2){$('helpTurn').hidden=false;$('helpTurn').onclick=()=>G.turnTo(K.c[0],K.c[1]-8)}};
  function found(){setProgress(1,2);say('🔎 מצאת אותה בגלובוס!',true);$('hint').hidden=true;hintStage=0;$('helpTurn').hidden=true;
@@ -359,12 +375,11 @@ const SCENES=[
   sea:'M310,255 C310,232 330,222 350,222 C372,222 390,234 390,255 C390,276 372,286 350,286 C330,286 310,276 310,255 Z',
   extra:'M388,236 L400,236 L400,274 L388,274 Z',
   pts:{'אי':[118,82],'חצי אי':[150,186],'מצר':[262,255],'מפרץ':[278,95],'ים':[350,254],'אוקיינוס':[70,250],'יבשת':[340,120]}},
- {land:['M0,0 L400,0 L400,70 L362,74 L352,128 L338,130 L330,100 L300,92 L282,96 L276,52 L234,48 L228,94 L200,100 L120,96 L106,102 L104,206 L88,228 L70,206 L68,106 L40,100 L0,106 Z',
-        'M150,300 L162,252 L232,236 L318,230 L336,176 L354,162 L372,200 L400,210 L400,300 Z'],
-  extra:'M386,60 L400,60 L400,220 L386,220 C380,180 380,110 386,60 Z',
+ {land:['M0,0 L400,0 L400,92 L300,92 L282,96 L276,52 L234,48 L228,94 L200,100 L120,96 L106,102 L104,206 L88,228 L70,206 L68,106 L40,100 L0,106 Z',
+        'M150,300 L162,236 L232,210 L320,188 L400,182 L400,300 Z'],
   island:'M190,160 C230,146 258,170 236,186 C214,200 168,186 190,160 Z',
-  sea:'',
-  pts:{'אי':[214,174],'חצי אי':[86,170],'מצר':[346,146],'מפרץ':[255,74],'ים':[369,140],'אוקיינוס':[50,250],'יבשת':[170,40]}}
+  sea:'M310,266 C310,250 328,242 350,242 C372,242 390,250 390,266 C390,282 372,292 350,292 C328,292 310,282 310,266 Z M318,170 L332,170 L332,254 L318,254 Z',
+  pts:{'אי':[214,174],'חצי אי':[86,170],'מצר':[325,222],'מפרץ':[255,74],'ים':[352,268],'אוקיינוס':[50,250],'יבשת':[170,40]}}
 ];
 const DISTRACT=['גלובוס','כדור הארץ'];
 function fStart(){
@@ -384,11 +399,11 @@ function fStep(){
  // waves on ocean
  for(let k=0;k<9;k++)el('path',{d:`M${20+(k%3)*120},${30+Math.floor(k/3)*95} q8,-6 16,0 t16,0`,stroke:'#ffffff70','stroke-width':2,fill:'none'},g);
  for(const d of s.land)el('path',{d,fill:'#b8cf8a',stroke:'#6f8f4e','stroke-width':2.5,'stroke-linejoin':'round'},g);
- if(s.sea)el('path',{d:s.sea,fill:'#3d8fd1'},g);
+ if(s.sea)for(const d of s.sea.split(/(?=M)/))el('path',{d,fill:'#3d8fd1'},g);
  if(s.extra)el('path',{d:s.extra,fill:'#b8cf8a'},g);
  el('path',{d:s.island,fill:'#b8cf8a',stroke:'#6f8f4e','stroke-width':2.5},g);
  // a few trees/hills on land
- for(const [x,y] of [[360,30],[300,40],[380,280]].concat(s.sea?[]:[[60,30],[120,40]]))el('path',{d:`M${x},${y} l7,-12 l7,12 z`,fill:'#6f8f4e'},g);
+ for(const [x,y] of [[360,30],[300,40]].concat(s.sea?[]:[[60,30],[120,40]]))el('path',{d:`M${x},${y} l7,-12 l7,12 z`,fill:'#6f8f4e'},g);
  for(const it of items){let [x,y]=s.pts[it.k];if(fx)x=400-x;if(fy)y=300-y;
    const ng=el('g',{class:'num'+(it===cur?' cur':items.indexOf(it)<i?' ok':'')},svg);el('circle',{cx:x,cy:y,r:it===cur?15:13},ng);
    const t=el('text',{x,y},ng);t.textContent=items.indexOf(it)<i?'✓':it.n}
@@ -422,3 +437,8 @@ $('fbform').onsubmit=e=>{
 };
 // testing hook (no data stored)
 window.__geo={start,get M(){return M},DCASES,PLACES,earthURL,satZoom,get satMap(){return satMap},flatCont};
+/* Optional deep-link from the subject hub, e.g. ?mode=journey. Default remains the menu. */
+{
+ const m=new URLSearchParams(location.search).get('mode');
+ if(m&&{journey:1,compare:1,detective:1,find:1}[m]) start(m);
+}
